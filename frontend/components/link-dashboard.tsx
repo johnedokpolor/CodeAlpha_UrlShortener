@@ -7,6 +7,7 @@ import {
   Trash2,
   Plus,
   Check,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,21 +47,36 @@ const initialLinks: ShortenedLink[] = [
 ];
 
 export function LinkDashboard() {
-  const [links, setLinks] = useState<ShortenedLink[]>();
+  const [links, setLinks] = useState<ShortenedLink[] | null>(null);
   const [originalUrl, setOriginalUrl] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [stats, setStats] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getUrls = async () => {
     try {
       const response = await api.get("/api/urls");
       setLinks(response.data);
+      console.log(response.data);
+    } catch (error) {
+      setError("Failed to fetch Urls");
+      console.log(error);
+    }
+  };
+  const getStats = async () => {
+    try {
+      const response = await api.get("/api/stats");
+      setStats(response.data);
+      console.log(response.data);
     } catch (error) {
       console.log(error);
     }
   };
   useEffect(() => {
     getUrls();
-  });
+    getStats();
+  }, [0]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,10 +86,13 @@ export function LinkDashboard() {
     }
 
     try {
+      setLoading(true);
       const response = api.post("/api/urls", { originalUrl });
       console.log(response);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
 
     getUrls();
@@ -85,8 +104,13 @@ export function LinkDashboard() {
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
+  const handlRefresh = () => {
+    setError(null);
+    getStats();
+    getUrls();
+  };
 
-  const totalClicks = 50;
+  const totalClicks = stats;
 
   return (
     <div className="min-h-screen  bg-background">
@@ -102,7 +126,7 @@ export function LinkDashboard() {
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              <span>{totalClicks.toLocaleString()} clicks</span>
+              <span>{totalClicks} clicks</span>
             </div>
             <div className="flex items-center gap-2">
               <Link2 className="w-4 h-4" />
@@ -118,7 +142,7 @@ export function LinkDashboard() {
           <form onSubmit={handleSubmit} className="flex gap-3">
             <Input
               type="url"
-              placeholder="Paste a long URL..."
+              placeholder="https://example.com"
               value={originalUrl}
               onChange={(e) => setOriginalUrl(e.target.value)}
               className="flex-1 h-11"
@@ -135,6 +159,39 @@ export function LinkDashboard() {
           <h2 className="text-sm font-medium text-muted-foreground mb-4">
             Recent Links
           </h2>
+          {!links && !error && (
+            <Card className="p-12 text-center">
+              <div className="w-12 h-12 rounded-full animate-ping bg-muted flex items-center justify-center mx-auto mb-4">
+                <Link2 className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground">Fetching Links...</p>
+            </Card>
+          )}
+          {error && (
+            <Card className="p-12 text-center">
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center mx-auto justify-center">
+                <AlertCircle className="w-6 h-6 text-destructive" />
+              </div>
+              <p className="text-muted-foreground">Failed to Fetch Links</p>
+              <p
+                className="text-sm text-muted-foreground/60 mt-1 underline"
+                onClick={handlRefresh}
+              >
+                Try again
+              </p>
+            </Card>
+          )}
+          {loading && (
+            <Card className="p-12 text-center">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                <Link2 className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground">Shortening your link...</p>
+              <p className="text-sm text-muted-foreground/60 mt-1">
+                {originalUrl}
+              </p>
+            </Card>
+          )}
 
           {links?.length === 0 ? (
             <Card className="p-12 text-center">

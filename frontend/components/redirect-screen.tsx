@@ -11,27 +11,23 @@ export function RedirectScreen({}) {
   const [destinationUrl, setDestinationUrl] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
 
-  useEffect(() => {
-    async function fetchAndRedirect() {
-      try {
-        const response = await api.get(`/${shortCode}`);
-        setDestinationUrl(response.data.originalUrl);
-        setState("redirecting");
-
-        // Small delay to show the destination before redirecting
-        setTimeout(() => {
-          if (destinationUrl) {
-            window.open(destinationUrl, "_blank", "noopener,noreferrer");
-          }
-        }, 1500);
-      } catch (error) {
-        setState("error");
-        setError("This link may be broken or expired");
-      }
+  async function fetchAndRedirect() {
+    try {
+      const response = await api.get(`/${shortCode}`);
+      console.log(response.data);
+      setState("redirecting");
+      // Small delay to show the destination before redirecting
+      setTimeout(() => {
+        window.location.href = response.data.originalUrl;
+      }, 1500);
+    } catch (error) {
+      setState("error");
+      setError("This link may be broken or expired");
     }
-
+  }
+  useEffect(() => {
     fetchAndRedirect();
-  }, [shortCode]);
+  }, [0]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
@@ -87,7 +83,9 @@ export function RedirectScreen({}) {
             <div className="w-full p-4 rounded-lg bg-muted/50 border border-border">
               <div className="flex items-center gap-3">
                 <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
-                <p className="text-sm font-mono truncate">{destinationUrl}</p>
+                <p className="text-sm font-mono dark:text-white truncate">
+                  {destinationUrl}
+                </p>
               </div>
             </div>
 
