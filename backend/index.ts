@@ -6,7 +6,7 @@ import {
   redirectUrl,
   getUrls,
   urlStats,
-} from "./controllers/urlShortener";
+} from "./controllers/urlShortener.js";
 
 const app = express();
 
@@ -14,6 +14,10 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 1000;
+
+app.get("/", (req, res) => {
+  res.send("Welcome to Snip0 URL Shortener API.");
+});
 
 app.post("/api/urls", shortenUrl);
 app.get("/api/urls", getUrls);
