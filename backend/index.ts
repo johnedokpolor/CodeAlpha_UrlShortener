@@ -6,7 +6,7 @@ import {
   redirectUrl,
   getUrls,
   urlStats,
-} from "./controllers/urlShortener";
+} from "./controllers/urlShortener.js";
 
 const app = express();
 
