@@ -24,8 +24,4 @@ app.get("/api/urls", getUrls);
 app.get("/api/stats", urlStats);
 app.get("/:shortCode", redirectUrl);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
 export default app;
