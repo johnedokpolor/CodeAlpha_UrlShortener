@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 
 const shortenUrl = async (req: any, res: any) => {
   const { originalUrl } = req.body;
