@@ -16,10 +16,8 @@ export function RedirectScreen({}) {
       const response = await api.get(`/${shortCode}`);
       console.log(response.data);
       setState("redirecting");
-      // Small delay to show the destination before redirecting
-      setTimeout(() => {
-        window.location.href = response.data.originalUrl;
-      }, 1500);
+
+      window.location.href = response.data.originalUrl;
     } catch (error) {
       setState("error");
       setError("This link may be broken or expired");

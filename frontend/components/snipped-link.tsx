@@ -4,9 +4,9 @@ import { Link2 } from "lucide-react";
 
 type SnippedLinkProps = {
   shortUrl: string;
-  setShortUrl: Dispatch<SetStateAction<string | null>>;
+  getUrls: () => void;
 };
-const SnippedLink = ({ shortUrl, setShortUrl }: SnippedLinkProps) => {
+const SnippedLink = ({ shortUrl, getUrls }: SnippedLinkProps) => {
   return (
     <Card className="p-12 text-center">
       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
@@ -23,7 +23,7 @@ const SnippedLink = ({ shortUrl, setShortUrl }: SnippedLinkProps) => {
       </a>
       <p
         className="text-sm font-medium text-foreground underline underline-offset-4 hover:text-foreground/80 transition-colors"
-        onClick={() => setShortUrl(null)}
+        onClick={() => getUrls()}
       >
         Go to homepage
       </p>

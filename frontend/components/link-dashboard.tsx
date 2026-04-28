@@ -36,12 +36,13 @@ export function LinkDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   const getUrls = async () => {
+    setShortUrl(null);
     try {
       const response = await api.get("/api/urls");
       setLinks(response.data);
       console.log(response.data);
     } catch (error) {
-      setError("Failed to fetch Urls");
+      setError("Failed to fetch links");
       console.log(error);
     }
   };
@@ -75,7 +76,6 @@ export function LinkDashboard() {
       console.log(response);
       setOriginalUrl("");
       setShortUrl(response.data.shortUrl);
-      // getUrls();
     } catch (error) {
       setError("Failed to snip link");
       console.log(error);
@@ -153,9 +153,7 @@ export function LinkDashboard() {
             />
           )}
           {loading && <SnippingLink originalUrl={originalUrl} />}
-          {shortUrl && (
-            <SnippedLink shortUrl={shortUrl} setShortUrl={setShortUrl} />
-          )}
+          {shortUrl && <SnippedLink shortUrl={shortUrl} getUrls={getUrls} />}
 
           {links?.length === 0 ? (
             <NoLinks />
@@ -196,6 +194,18 @@ export function LinkDashboard() {
                     </p>
                   </div>
 
+                  {/* Date */}
+                  <div className="flex items-center gap-6">
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(link.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
                   {/* Stats */}
                   <div className="flex items-center gap-6">
                     <div className="text-right">
@@ -203,23 +213,6 @@ export function LinkDashboard() {
                         {link.clicks}
                       </p>
                       <p className="text-xs text-muted-foreground">clicks</p>
-                    </div>
-
-                    {/* Date */}
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(link.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              weekday: "short",
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            },
-                          )}
-                        </p>
-                      </div>
                     </div>
                   </div>
                 </div>
