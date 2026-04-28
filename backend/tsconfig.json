@@ -6,6 +6,6 @@
     "strict": true,
     "esModuleInterop": true,
     "ignoreDeprecations": "6.0",
-    "paths": { "@prisma/client": ["./generated/prisma/client"] }
+    "paths": { "@prismaa/client": ["./generated/prisma/client"] }
   }
 }
