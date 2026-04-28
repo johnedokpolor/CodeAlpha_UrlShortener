@@ -7,6 +7,16 @@ const shortenUrl = async (req: any, res: any) => {
   try {
     if (!originalUrl)
       return res.status(400).send("Original Url must be provided");
+    const existingEntry = await prisma.url.findFirst({
+      where: { originalUrl: originalUrl.trim() },
+    });
+    if (existingEntry) {
+      return res.status(200).json({
+        message: "Url already shortened",
+        shortUrl: `https://snip0.vercel.app/${existingEntry.shortCode}`,
+      });
+    }
+
     const entry = await prisma.url.create({
       data: {
         originalUrl: originalUrl.trim(),
@@ -14,7 +24,8 @@ const shortenUrl = async (req: any, res: any) => {
       },
     });
     res.status(200).json({
-      shortUrl: `${req.protocol}://${req.host}/${shortCode}`,
+      message: "Url shortened successfully",
+      shortUrl: `https://snip0.vercel.app/${shortCode}`,
     });
   } catch (error) {
     res.status(500).send("Database Error");
@@ -42,12 +53,25 @@ const redirectUrl = async (req: any, res: any) => {
 
 const getUrls = async (req: any, res: any) => {
   try {
-    const urls = await prisma.url.findMany();
+    const urls = await prisma.url.findMany({ orderBy: { createdAt: "desc" } });
     res.status(200).json(urls);
   } catch (error) {
     res.status(500).send("Database Error");
     console.log(error);
   }
 };
+const urlStats = async (req: any, res: any) => {
+  try {
+    const totalClicks = await prisma.url.aggregate({
+      _sum: {
+        clicks: true,
+      },
+    });
+    res.status(200).json(totalClicks._sum.clicks);
+  } catch (error) {
+    res.status(500).send("Database Error");
+    console.log(error);
+  }
+};
 
-export { shortenUrl, redirectUrl, getUrls };
+export { shortenUrl, redirectUrl, getUrls, urlStats };

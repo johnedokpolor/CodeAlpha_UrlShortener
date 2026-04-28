@@ -6,10 +6,7 @@ interface LoadingScreenProps {
   setOnComplete: Dispatch<SetStateAction<boolean>>;
 }
 
-export function LoadingScreen({
-  onComplete,
-  setOnComplete,
-}: LoadingScreenProps) {
+export function LoadingScreen({ setOnComplete }: LoadingScreenProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -41,7 +38,7 @@ export function LoadingScreen({
         {/* Brand */}
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight dark:text-white">
-            snip
+            snip0
           </h1>
           <p className="text-sm mt-1 dark:text-white">Link Shortener</p>
         </div>

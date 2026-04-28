@@ -4,7 +4,6 @@ import {
   Copy,
   ExternalLink,
   BarChart3,
-  Trash2,
   Plus,
   Check,
   AlertCircle,
@@ -13,6 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import api from "@/hooks/axios-instance";
+import NoLinks from "./no-links";
+import SnippingLink from "./snipping-link";
+import Error from "./error";
+import FetchingLinks from "./fetching-links";
+import SnippedLink from "./snipped-link";
 
 interface ShortenedLink {
   id: string;
@@ -22,36 +26,13 @@ interface ShortenedLink {
   createdAt: Date;
 }
 
-const initialLinks: ShortenedLink[] = [
-  {
-    id: "1",
-    originalUrl: "https://example.com/very-long-url-that-needs-shortening",
-    shortCode: "abc123",
-    clicks: 142,
-    createdAt: new Date(Date.now() - 86400000 * 2),
-  },
-  {
-    id: "2",
-    originalUrl: "https://documentation.site/api/v2/endpoints",
-    shortCode: "xyz789",
-    clicks: 89,
-    createdAt: new Date(Date.now() - 86400000),
-  },
-  {
-    id: "3",
-    originalUrl: "https://blog.example.org/post/minimalist-design",
-    shortCode: "min456",
-    clicks: 234,
-    createdAt: new Date(Date.now() - 3600000),
-  },
-];
-
 export function LinkDashboard() {
   const [links, setLinks] = useState<ShortenedLink[] | null>(null);
   const [originalUrl, setOriginalUrl] = useState("");
+  const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [stats, setStats] = useState<number | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<string | boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const getUrls = async () => {
@@ -76,9 +57,10 @@ export function LinkDashboard() {
   useEffect(() => {
     getUrls();
     getStats();
+    console.log("useffect triggered");
   }, [0]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!originalUrl.trim()) {
       alert("A Url must be provided");
@@ -86,25 +68,28 @@ export function LinkDashboard() {
     }
 
     try {
-      setLoading(true);
-      const response = api.post("/api/urls", { originalUrl });
+      setLoading("Snipping");
+      setError(null);
+      setShortUrl(null);
+      const response = await api.post("/api/urls", { originalUrl });
       console.log(response);
+      setOriginalUrl("");
+      setShortUrl(response.data.shortUrl);
+      // getUrls();
     } catch (error) {
+      setError("Failed to snip link");
       console.log(error);
     } finally {
       setLoading(false);
     }
-
-    getUrls();
-    setOriginalUrl("");
   };
 
   const handleCopy = async (shortCode: string, id: string) => {
-    await navigator.clipboard.writeText(`snip.link/${shortCode}`);
+    await navigator.clipboard.writeText(`snip0.vercel.app/${shortCode}`);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
-  const handlRefresh = () => {
+  const handleRefresh = () => {
     setError(null);
     getStats();
     getUrls();
@@ -121,7 +106,7 @@ export function LinkDashboard() {
             <div className="w-9 h-9 rounded-xl bg-foreground flex items-center justify-center">
               <Link2 className="w-4 h-4 text-background" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">snip</span>
+            <span className="text-lg font-semibold tracking-tight">snip0</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
@@ -159,51 +144,25 @@ export function LinkDashboard() {
           <h2 className="text-sm font-medium text-muted-foreground mb-4">
             Recent Links
           </h2>
-          {!links && !error && (
-            <Card className="p-12 text-center">
-              <div className="w-12 h-12 rounded-full animate-ping bg-muted flex items-center justify-center mx-auto mb-4">
-                <Link2 className="w-5 h-5 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">Fetching Links...</p>
-            </Card>
-          )}
+          {!links && !error && <FetchingLinks />}
           {error && (
-            <Card className="p-12 text-center">
-              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center mx-auto justify-center">
-                <AlertCircle className="w-6 h-6 text-destructive" />
-              </div>
-              <p className="text-muted-foreground">Failed to Fetch Links</p>
-              <p
-                className="text-sm text-muted-foreground/60 mt-1 underline"
-                onClick={handlRefresh}
-              >
-                Try again
-              </p>
-            </Card>
+            <Error
+              error={error}
+              handleSubmit={handleSubmit}
+              handleRefresh={handleRefresh}
+            />
           )}
-          {loading && (
-            <Card className="p-12 text-center">
-              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                <Link2 className="w-5 h-5 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">Shortening your link...</p>
-              <p className="text-sm text-muted-foreground/60 mt-1">
-                {originalUrl}
-              </p>
-            </Card>
+          {loading && <SnippingLink originalUrl={originalUrl} />}
+          {shortUrl && (
+            <SnippedLink shortUrl={shortUrl} setShortUrl={setShortUrl} />
           )}
 
           {links?.length === 0 ? (
-            <Card className="p-12 text-center">
-              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                <Link2 className="w-5 h-5 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">No links yet</p>
-              <p className="text-sm text-muted-foreground/60 mt-1">
-                Create your first shortened link above
-              </p>
-            </Card>
+            <NoLinks />
           ) : (
+            !loading &&
+            !shortUrl &&
+            !error &&
             links?.map((link) => (
               <Card
                 key={link.id}
@@ -213,9 +172,14 @@ export function LinkDashboard() {
                   {/* Short URL */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-foreground">
-                        snip.link/{link.shortCode}
-                      </span>
+                      <a
+                        href={`https://snip0.vercel.app/${link.shortCode}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium hover:underline text-foreground"
+                      >
+                        snip0.vercel.app/{link.shortCode}
+                      </a>
                       <button
                         onClick={() => handleCopy(link.shortCode, link.id)}
                         className="text-muted-foreground hover:text-foreground transition-colors"
@@ -241,16 +205,21 @@ export function LinkDashboard() {
                       <p className="text-xs text-muted-foreground">clicks</p>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => window.open(link.originalUrl, "_blank")}
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Button>
+                    {/* Date */}
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(link.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "short",
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            },
+                          )}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

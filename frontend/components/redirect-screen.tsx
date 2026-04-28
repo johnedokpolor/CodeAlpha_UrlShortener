@@ -48,7 +48,7 @@ export function RedirectScreen({}) {
             <div className="flex flex-col gap-1">
               <h1 className="text-lg font-medium">Looking up your link</h1>
               <p className="text-sm text-muted-foreground">
-                snip.link/<span className="font-mono">{shortCode}</span>
+                snip0.vercel.app/<span className="font-mono">{shortCode}</span>
               </p>
             </div>
 
@@ -120,7 +120,7 @@ export function RedirectScreen({}) {
 
         {/* Footer */}
         <p className="text-xs text-muted-foreground mt-4">
-          Powered by <span className="font-medium">snip</span>
+          Powered by <span className="font-medium">snip0</span>
         </p>
       </div>
     </div>
