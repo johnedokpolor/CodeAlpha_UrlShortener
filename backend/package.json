@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "postinstall": "prisma generate",
+    "build": "prisma generate && tsc",
+    "install": "npm install && prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx --watch index.ts"
   },
