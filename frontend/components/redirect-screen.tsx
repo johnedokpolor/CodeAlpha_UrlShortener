@@ -15,9 +15,8 @@ export function RedirectScreen({}) {
     try {
       const response = await api.get(`/${shortCode}`);
       console.log(response.data);
+      setDestinationUrl(response.data.originalUrl);
       setState("redirecting");
-
-      window.location.href = response.data.originalUrl;
     } catch (error) {
       setState("error");
       setError("This link may be broken or expired");
@@ -27,6 +26,11 @@ export function RedirectScreen({}) {
     fetchAndRedirect();
   }, [0]);
 
+  if (destinationUrl) {
+    setTimeout(() => {
+      window.location.href = destinationUrl;
+    }, 1000);
+  }
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
       <div className="flex flex-col items-center gap-8 max-w-md w-full">
