@@ -85,7 +85,7 @@ export function RedirectScreen({}) {
             <div className="w-full p-4 rounded-lg bg-muted/50 border border-border">
               <div className="flex items-center gap-3">
                 <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
-                <p className="text-sm font-mono dark:text-white truncate">
+                <p className="text-sm font-mono break-all dark:text-white ">
                   {destinationUrl}
                 </p>
               </div>
